@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { diffWords } from 'diff'
 import { nextTick, onBeforeUnmount, onMounted, ref, shallowRef, watch } from 'vue'
 import { useRoute, useRouter } from 'vitepress'
 
@@ -52,13 +51,6 @@ function contentRoot() {
   return doc.querySelector('h1, h2') ? doc : null
 }
 
-function escapeHtml(text: string) {
-  return text
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-}
-
 function load(): Record<string, PageRecord> {
   try {
     const raw = localStorage.getItem(STORAGE_KEY)
@@ -70,17 +62,6 @@ function load(): Record<string, PageRecord> {
 
 function persist(store: Record<string, PageRecord>) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(store))
-}
-
-function wordDiff(oldText: string, nextText: string) {
-  return diffWords(oldText, nextText)
-    .map((part) => {
-      const value = escapeHtml(part.value)
-      if (part.added) return `<ins>${value}</ins>`
-      if (part.removed) return `<del>${value}</del>`
-      return value
-    })
-    .join('')
 }
 
 function collectSections(doc: Element) {
@@ -219,19 +200,6 @@ function apply() {
   const seen = record?.sections ?? {}
   const nextHunks: HTMLElement[] = []
 
-  if (record) {
-    for (const [id, oldText] of Object.entries(seen)) {
-      if (currentTexts[id]) continue
-      const marker = document.createElement('div')
-      marker.className = 'is-removed'
-      marker.dataset.oasisInserted = '1'
-      marker.dataset.oasisHunk = ''
-      marker.innerHTML = `<span class="label">已删除</span><del>${escapeHtml(oldText)}</del>`
-      doc.prepend(marker)
-      nextHunks.push(marker)
-    }
-  }
-
   for (const section of sections) {
     const text = currentTexts[section.id]
     const oldText = seen[section.id]
@@ -244,11 +212,6 @@ function apply() {
       el.classList.add('is-updated')
       if (el instanceof HTMLElement) el.dataset.oasisHunk = ''
     })
-    const note = document.createElement('div')
-    note.className = 'oasis-diff-detail'
-    note.dataset.oasisInserted = '1'
-    note.innerHTML = `<span class="label">相对你读过的版本</span>${wordDiff(oldText, text)}`
-    section.els[0].after(note)
     const anchor = section.els[0]
     if (anchor instanceof HTMLElement) nextHunks.push(anchor)
   }

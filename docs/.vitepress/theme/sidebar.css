@@ -1,0 +1,10 @@
+.VPSidebarItem.level-0 > .items {
+  margin-left: 7px;
+  padding-left: 16px;
+  border-left: 1px solid var(--vp-c-divider);
+}
+
+.VPSidebarItem.level-1.collapsible > .item > .text {
+  font-weight: 650;
+  color: var(--vp-c-text-1);
+}

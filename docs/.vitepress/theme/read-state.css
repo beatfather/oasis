@@ -6,12 +6,6 @@
 .vp-doc .is-updated {
   filter: none;
   opacity: 1;
-  margin-left: -0.75rem;
-  margin-right: -0.75rem;
-  padding: 0.35rem 0.75rem;
-  border-radius: 8px;
-  background: color-mix(in srgb, #e6a817 16%, transparent);
-  box-shadow: inset 3px 0 0 #e6a817;
   scroll-margin-top: 5.5rem;
 }
 
