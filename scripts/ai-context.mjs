@@ -34,6 +34,18 @@ function clean(text) {
     .trim()
 }
 
+function absolutize(text, rel) {
+  const dir = '/' + path.posix.dirname(rel)
+  return text.replace(/\[([^\]]*)\]\(([^)]+)\)/g, (full, label, href) => {
+    if (/^(https?:|mailto:|#|\/)/.test(href)) return full
+    const hashAt = href.indexOf('#')
+    const pathPart = hashAt === -1 ? href : href.slice(0, hashAt)
+    const hash = hashAt === -1 ? '' : href.slice(hashAt)
+    const resolved = path.posix.normalize(path.posix.join(dir, pathPart)).replace(/\.md$/, '')
+    return `[${label}](${resolved}${hash})`
+  })
+}
+
 const parts = [
   `# 智械文明
 
@@ -43,7 +55,7 @@ const parts = [
 ]
 
 for (const rel of pages) {
-  const text = clean(await readFile(path.join(docsDir, rel), 'utf8'))
+  const text = absolutize(clean(await readFile(path.join(docsDir, rel), 'utf8')), rel)
   if (!text) continue
   const route = '/' + rel.replace(/\/index\.md$/, '/').replace(/\.md$/, '')
   parts.push(`来源：${route}\n\n${text}`)
